@@ -1,0 +1,55 @@
+services:
+    na-api:
+        image: webdevops/php-nginx:8.5-alpine
+        container_name: na-api
+        user: "application"
+        working_dir: /home/application
+        volumes:
+            - ./:/home/application
+        environment:
+            APP_ENV: local
+            GIT_CONFIG_PARAMETERS: "'safe.directory=*'"
+            WEB_DOCUMENT_ROOT: /home/application/public
+        ports:
+            - "${API_PUBLIC_PORT:-8080}:80"
+        depends_on:
+            - na-mysql
+        networks:
+            - news-aggregator
+
+    na-mysql:
+        image: mysql:8.4
+        container_name: na-mysql
+        volumes:
+            - na-mysqldata:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: news_aggregator
+            MYSQL_USER: news_aggregator
+            MYSQL_PASSWORD: news_aggregator
+        ports:
+            - "${MYSQL_PUBLIC_PORT:-3306}:3306"
+        networks:
+            - news-aggregator
+
+    na-phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        container_name: na-phpmyadmin
+        environment:
+            PMA_ABSOLUTE_URI: http://www.pma-na.test
+            VIRTUAL_HOST: www.pma-na.test
+            PMA_HOST: na-mysql
+            UPLOAD_LIMIT: 200M
+        ports:
+            - 8889:80
+        depends_on:
+            - na-mysql
+        networks:
+            - news-aggregator
+
+volumes:
+    na-mysqldata:
+networks:
+    news-aggregator:
+        name: news-aggregator
+        driver: bridge
