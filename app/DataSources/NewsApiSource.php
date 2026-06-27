@@ -23,29 +23,32 @@ class NewsApiSource implements NewsSource
     {
         $articles = [];
         foreach (self::NEWSAPI_CATEGORIES as $category) {
-            $response = Http::acceptJson()->get('https://newsapi.org/v2/top-headlines', [
-                'category' => $category,
-                'pageSize' => 5,
-                'apiKey' => config('services.newsapi.key'),
-            ]);
+            $response = Http::acceptJson()->get(
+                'https://newsapi.org/v2/top-headlines',
+                [
+                    'category' => $category,
+                    'pageSize' => 2,
+                    'apiKey' => config('services.newsapi.key'),
+                ]
+            );
 
             if ($response->failed()) {
                 continue;
             }
 
-            foreach ($response->json('articles', []) as $item) {
-                if (empty($item['url']) || empty($item['title'])) {
+            foreach ($response->json('articles', []) as $article) {
+                if (empty($article['url']) || empty($article['title'])) {
                     continue;
                 }
 
                 $articles[] = new ArticleDto(
-                    hash('sha256', $item['url']),
+                    hash('sha256', $article['url']),
                     $category,
-                    $item['author'] ?? null,
-                    $item['title'],
-                    $item['content'] ?? $item['description'] ?? $item['title'],
-                    $item['url'],
-                    $item['publishedAt'] ?? now()->toDateTimeString(),
+                    $article['author'] ?? null,
+                    $article['title'],
+                    $article['content'] ?? $article['description'] ?? $article['title'],
+                    $article['url'],
+                    $article['publishedAt'] ?? now()->toDateTimeString(),
                 );
             }
         }

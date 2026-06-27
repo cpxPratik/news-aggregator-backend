@@ -17,33 +17,36 @@ class GuardianSource implements NewsSource
      */
     public function fetch(): iterable
     {
-        $response = Http::acceptJson()->get('https://content.guardianapis.com/search', [
-            'order-by' => 'newest',
-            'page-size' => 5,
-            'show-fields' => 'bodyText,thumbnail,byline',
-            'api-key' => config('services.guardian.key'),
-        ]);
+        $response = Http::acceptJson()->get(
+            'https://content.guardianapis.com/search',
+            [
+                'order-by' => 'newest',
+                'page-size' => 5,
+                'show-fields' => 'bodyText,thumbnail,byline',
+                'api-key' => config('services.guardian.key'),
+            ]
+        );
 
         if ($response->failed()) {
             return [];
         }
 
         $articles = [];
-        foreach ($response->json('response.results', []) as $item) {
-            if (empty($item['webUrl']) || empty($item['webTitle'])) {
+        foreach ($response->json('response.results', []) as $article) {
+            if (empty($article['webUrl']) || empty($article['webTitle'])) {
                 continue;
             }
 
-            $fields = $item['fields'] ?? [];
+            $fields = $article['fields'] ?? [];
 
             $articles[] = new ArticleDto(
-                hash('sha256', $item['id']),
-                $item['sectionName'] ?? 'General',
+                hash('sha256', $article['id']),
+                $article['sectionName'] ?? 'General',
                 $fields['byline'] ?? null,
-                $item['webTitle'],
+                $article['webTitle'],
                 $fields['bodyText'],
-                $item['webUrl'],
-                $item['webPublicationDate'] ?? now()->toDateTimeString(),
+                $article['webUrl'],
+                $article['webPublicationDate'] ?? now()->toDateTimeString(),
             );
         }
 

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\DataSources\GuardianSource;
 use App\DataSources\NewsApiSource;
 use App\DataSources\NewsSource;
+use App\DataSources\NewYorkTimesSource;
 use App\Models\Source;
 use App\Services\ArticleImporter;
 use Illuminate\Console\Attributes\Description;
@@ -21,7 +22,7 @@ class FetchNews extends Command
      */
     public function handle(ArticleImporter $articleImporter): int
     {
-        $newsDataAdapters = [new NewsApiSource(), new GuardianSource()];
+        $newsDataAdapters = [new NewsApiSource(), new GuardianSource(), new NewYorkTimesSource()];
 
         $total = 0;
         $failed = false;
