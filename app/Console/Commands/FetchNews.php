@@ -2,81 +2,63 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Article;
-use App\Models\Author;
-use App\Models\Category;
+use App\DataSources\GuardianSource;
+use App\DataSources\NewsApiSource;
+use App\DataSources\NewsSource;
 use App\Models\Source;
+use App\Services\ArticleImporter;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
+use Illuminate\Http\Client\ConnectionException;
 
 #[Signature('app:fetch-news')]
-#[Description('Fetch the latest articles from the news sources')]
+#[Description('Fetch the latest articles from the data sources')]
 class FetchNews extends Command
 {
-    private const NEWSAPI_CATEGORIES = [
-        'business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology',
-    ];
-
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(ArticleImporter $articleImporter): int
     {
-        $source = Source::where('slug', 'news-api')->first();
-        if (! $source) {
-            return self::FAILURE;
-        }
+        $newsDataAdapters = [new NewsApiSource(), new GuardianSource()];
 
-        $count = 0;
-        foreach (self::NEWSAPI_CATEGORIES as $category) {
-            $response = Http::acceptJson()->get('https://newsapi.org/v2/top-headlines', [
-                'category' => $category,
-                'pageSize' => 50,
-                'apiKey' => config('services.newsapi.key'),
-            ]);
+        $total = 0;
+        $failed = false;
 
-            if ($response->failed()) {
-                $this->warn("NewsAPI fetch failed for category: {$category}.");
+        foreach ($newsDataAdapters as $adapter) {
+            $count = $this->importFrom($articleImporter, $adapter);
 
-                continue;
-            }
-
-            $categoryId = Category::firstOrCreate(['slug' => Str::slug($category)])->id;
-
-            foreach ($response->json('articles', []) as $item) {
-                if (empty($item['url']) || empty($item['title'])) {
-                    continue;
-                }
-
-                Article::updateOrCreate(
-                    ['source_id' => $source->id, 'hashed_url' => hash('sha256', $item['url'])],
-                    [
-                        'category_id' => $categoryId,
-                        'author_id' => $this->authorId($item['author'] ?? null),
-                        'title' => $item['title'],
-                        'content' => $item['content'] ?? $item['description'] ?? $item['title'],
-                        'url' => $item['url'],
-                        'published_at' => $item['publishedAt'] ?? now(),
-                    ],
-                );
-                $count++;
+            if ($count === null) {
+                $failed = true;
+            } else {
+                $total += $count;
             }
         }
 
-        $this->info("NewsAPI: {$count} articles fetched.");
-        return self::SUCCESS;
+        $this->info("Total {$count} articles fetched from all sources.");
+
+        return $failed ? self::FAILURE : self::SUCCESS;
     }
 
-    private function authorId(?string $name): ?int
+    private function importFrom(ArticleImporter $importer, NewsSource $adapter): ?int
     {
-        $name = $name ? trim($name) : null;
-        if ($name === null || $name === '') {
+        $source = Source::where('slug', $adapter->slug())->first();
+        if (! $source) {
+            $this->warn("{$adapter->slug()} not found in database.");
+            return 0;
+        }
+
+        try {
+            $count = $importer->import($source, $adapter->fetch());
+        } catch (ConnectionException $e) {
+            $this->error("{$source->slug}: could not connect. {$e->getMessage()}.");
+
             return null;
         }
 
-        return Author::firstOrCreate(['slug' => Str::slug($name)])->id;
+        $this->info("{$source->slug}: {$count} articles fetched.");
+
+        return $count;
     }
 }

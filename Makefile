@@ -16,12 +16,6 @@ up:
 upd:
 	@$(DOCKER_CMD) up -d na-mysql na-api na-phpmyadmin na-scheduler
 
-restart:
-	@$(DOCKER_CMD) restart
-
-stop:
-	@$(DOCKER_CMD) stop
-
 down:
 	@$(DOCKER_CMD) down
 
