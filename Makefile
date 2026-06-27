@@ -14,7 +14,7 @@ up:
 	@$(DOCKER_CMD) up na-mysql na-api na-phpmyadmin
 
 upd:
-	@$(DOCKER_CMD) up -d na-mysql na-api na-phpmyadmin
+	@$(DOCKER_CMD) up -d na-mysql na-api na-phpmyadmin na-scheduler
 
 restart:
 	@$(DOCKER_CMD) restart
@@ -41,4 +41,7 @@ migrate:
 	$(RUN_CMD) php artisan migrate --ansi
 
 migrate-fresh:
-	$(RUN_CMD) php artisan migrate:fresh --ansi
+	$(RUN_CMD) php artisan migrate:fresh --seed --ansi
+
+seed:
+	$(RUN_CMD) php artisan db:seed --ansi

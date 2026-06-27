@@ -3,19 +3,33 @@ services:
         image: webdevops/php-nginx:8.5-alpine
         container_name: na-api
         user: "application"
-        working_dir: /home/application
+        working_dir: /app
         volumes:
-            - ./:/home/application
+            - ./:/app
         environment:
             APP_ENV: local
             GIT_CONFIG_PARAMETERS: "'safe.directory=*'"
-            WEB_DOCUMENT_ROOT: /home/application/public
+            WEB_DOCUMENT_ROOT: /app/public
         ports:
             - "${API_PUBLIC_PORT:-8080}:80"
         depends_on:
             - na-mysql
         networks:
             - news-aggregator
+
+    na-scheduler:
+        image: webdevops/php-nginx:8.5-alpine
+        container_name: na-scheduler
+        user: application
+        working_dir: /app
+        entrypoint: ["php", "artisan", "schedule:work"]
+        volumes:
+            - ./:/app
+        depends_on:
+            - na-mysql
+        networks:
+            - news-aggregator
+        restart: unless-stopped
 
     na-mysql:
         image: mysql:8.4
