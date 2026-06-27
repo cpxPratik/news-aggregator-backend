@@ -11,11 +11,6 @@ use Illuminate\Support\Str;
 
 class ArticleImporter
 {
-    /**
-     * @param Source $source
-     * @param iterable $articles
-     * @return int
-     */
     public function import(Source $source, iterable $articles): int
     {
         $count = 0;
@@ -27,17 +22,12 @@ class ArticleImporter
         return $count;
     }
 
-    /**
-     * @param Source $source
-     * @param ArticleDto $article
-     * @return void
-     */
     private function persist(Source $source, ArticleDto $article): void
     {
         Article::updateOrCreate(
             [
                 'source_id' => $source->id,
-                'hashed_url' => $article->hashedUrl
+                'hashed_url' => $article->hashedUrl,
             ],
             [
                 'category_id' => $this->getCategoryId($article->category),
@@ -50,10 +40,6 @@ class ArticleImporter
         );
     }
 
-    /**
-     * @param string|null $name
-     * @return int|null
-     */
     private function getAuthorId(?string $name): ?int
     {
         $name = $name ? trim($name) : null;
@@ -64,10 +50,6 @@ class ArticleImporter
         return Author::firstOrCreate(['slug' => Str::slug($name)])->id;
     }
 
-    /**
-     * @param string $name
-     * @return int
-     */
     private function getCategoryId(string $name): int
     {
         if (trim($name) === '') {

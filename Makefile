@@ -39,3 +39,7 @@ migrate-fresh:
 
 seed:
 	$(RUN_CMD) php artisan db:seed --ansi
+
+pint:
+	$(RUN_CMD) vendor/bin/pint
+

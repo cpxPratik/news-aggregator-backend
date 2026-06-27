@@ -22,7 +22,7 @@ class FetchNews extends Command
      */
     public function handle(ArticleImporter $articleImporter): int
     {
-        $newsDataAdapters = [new NewsApiSource(), new GuardianSource(), new NewYorkTimesSource()];
+        $newsDataAdapters = [new NewsApiSource, new GuardianSource, new NewYorkTimesSource];
 
         $total = 0;
         $failed = false;
@@ -47,6 +47,7 @@ class FetchNews extends Command
         $source = Source::where('slug', $adapter->slug())->first();
         if (! $source) {
             $this->warn("{$adapter->slug()} not found in database.");
+
             return 0;
         }
 
