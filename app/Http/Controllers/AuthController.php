@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -21,7 +23,13 @@ class AuthController extends Controller
 
         $token = $user->createToken('api')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token], 201);
+        return response()->json(
+            [
+                'user' => new UserResource($user),
+                'token' => $token
+            ],
+            Response::HTTP_CREATED
+        );
     }
 
     public function login(Request $request)
@@ -41,7 +49,12 @@ class AuthController extends Controller
 
         $token = $user->createToken('api')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token]);
+        return response()->json(
+            [
+                'user' => new UserResource($user),
+                'token' => $token
+            ]
+        );
     }
 
     public function logout(Request $request)
@@ -53,6 +66,6 @@ class AuthController extends Controller
 
     public function profile(Request $request)
     {
-        return $request->user();
+        return new UserResource($request->user());
     }
 }

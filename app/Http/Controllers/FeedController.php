@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
 
@@ -30,6 +31,8 @@ class FeedController extends Controller
             });
         }
 
-        return $query->orderByDesc('published_at')->paginate(10);
+        return ArticleResource::collection(
+            $query->orderByDesc('published_at')->paginate(10)
+        );
     }
 }

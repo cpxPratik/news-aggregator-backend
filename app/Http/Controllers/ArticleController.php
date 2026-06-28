@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filters\ArticleFilter;
+use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
 
@@ -21,12 +22,16 @@ class ArticleController extends Controller
 
         $query = $filter->apply(Article::query()->with(['category', 'source', 'author']));
 
-        return $query->orderByDesc('published_at')
+        $articles = $query->orderByDesc('published_at')
             ->paginate((int) $request->input('per_page', 10));
+
+        return ArticleResource::collection($articles);
     }
 
     public function show(Article $article)
     {
-        return $article->load(['source', 'category', 'author']);
+        return new ArticleResource(
+            $article->load(['source', 'category', 'author'])
+        );
     }
 }
