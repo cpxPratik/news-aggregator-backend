@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PreferenceController;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Source;
@@ -20,4 +21,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'profile']);
+
+    Route::get('/preferences', [PreferenceController::class, 'show']);
+    Route::put('/preferences', [PreferenceController::class, 'update']);
 });

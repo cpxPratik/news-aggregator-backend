@@ -22,7 +22,7 @@ class ArticleController extends Controller
         $query = $filter->apply(Article::query()->with(['category', 'source', 'author']));
 
         return $query->orderByDesc('published_at')
-            ->paginate((int) $request->input('per_page', 5));
+            ->paginate((int) $request->input('per_page', 10));
     }
 
     public function show(Article $article)

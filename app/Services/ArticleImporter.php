@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class ArticleImporter
 {
+    private const string DEFAULT_CATEGORY = 'general';
+
     public function import(Source $source, iterable $articles): int
     {
         $count = 0;
@@ -53,7 +55,7 @@ class ArticleImporter
     private function getCategoryId(string $name): int
     {
         if (trim($name) === '') {
-            $name = 'General';
+            $name = self::DEFAULT_CATEGORY;
         }
 
         return Category::firstOrCreate(['slug' => Str::slug($name)])->id;
