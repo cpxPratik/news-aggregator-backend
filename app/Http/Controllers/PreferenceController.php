@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdatePreferencesRequest;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Source;
@@ -15,27 +16,20 @@ class PreferenceController extends Controller
         return $this->formatPreferences($request->user());
     }
 
-    public function update(Request $request)
+    public function update(UpdatePreferencesRequest $request)
     {
-        $data = $request->validate([
-            'sources' => 'sometimes|array',
-            'sources.*' => 'string|exists:sources,slug',
-            'categories' => 'sometimes|array',
-            'categories.*' => 'string|exists:categories,slug',
-            'authors' => 'sometimes|array',
-            'authors.*' => 'string|exists:authors,slug',
-        ]);
+        $validated = $request->validated();
 
         $user = $request->user();
 
-        if (array_key_exists('sources', $data)) {
-            $user->sources()->sync(Source::whereIn('slug', $data['sources'])->pluck('id'));
+        if (array_key_exists('sources', $validated)) {
+            $user->sources()->sync(Source::whereIn('slug', $validated['sources'])->pluck('id'));
         }
-        if (array_key_exists('categories', $data)) {
-            $user->categories()->sync(Category::whereIn('slug', $data['categories'])->pluck('id'));
+        if (array_key_exists('categories', $validated)) {
+            $user->categories()->sync(Category::whereIn('slug', $validated['categories'])->pluck('id'));
         }
-        if (array_key_exists('authors', $data)) {
-            $user->authors()->sync(Author::whereIn('slug', $data['authors'])->pluck('id'));
+        if (array_key_exists('authors', $validated)) {
+            $user->authors()->sync(Author::whereIn('slug', $validated['authors'])->pluck('id'));
         }
 
         return $this->formatPreferences($user->load(['sources', 'categories', 'authors']));

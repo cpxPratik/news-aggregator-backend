@@ -3,27 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Filters\ArticleFilter;
+use App\Http\Requests\IndexArticleRequest;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
-use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function index(Request $request, ArticleFilter $filter)
+    public function index(IndexArticleRequest $request, ArticleFilter $filter)
     {
-        $request->validate([
-            'q' => 'sometimes|string',
-            'date' => 'sometimes|date',
-            'category' => 'sometimes|string',
-            'source' => 'sometimes|string',
-            'author' => 'sometimes|string',
-            'per_page' => 'sometimes|integer|min:1|max:50',
-        ]);
+        $validated = (int) $request->validated('per_page', 15);
 
         $query = $filter->apply(Article::query()->with(['category', 'source', 'author']));
 
-        $articles = $query->orderByDesc('published_at')
-            ->paginate((int) $request->input('per_page', 10));
+        $articles = $query->orderByDesc('published_at')->paginate($validated);
 
         return ArticleResource::collection($articles);
     }
