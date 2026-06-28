@@ -2,37 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ArticleFilter;
+use App\Filters\FeedFilter;
+use App\Http\Requests\IndexArticleRequest;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
-use Illuminate\Http\Request;
 
 class FeedController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(IndexArticleRequest $request, FeedFilter $feedFilter, ArticleFilter $articleFilter)
     {
-        $user = $request->user();
-        $sourceIds = $user->sources()->pluck('sources.id');
-        $categoryIds = $user->categories()->pluck('categories.id');
-        $authorIds = $user->authors()->pluck('authors.id');
+        $validated = (int) $request->validated('per_page', 10);
 
         $query = Article::query()->with(['source', 'category', 'author']);
 
-        if ($sourceIds->isNotEmpty() || $categoryIds->isNotEmpty() || $authorIds->isNotEmpty()) {
-            $query->where(function ($q) use ($sourceIds, $categoryIds, $authorIds) {
-                if ($sourceIds->isNotEmpty()) {
-                    $q->orWhereIn('source_id', $sourceIds);
-                }
-                if ($categoryIds->isNotEmpty()) {
-                    $q->orWhereIn('category_id', $categoryIds);
-                }
-                if ($authorIds->isNotEmpty()) {
-                    $q->orWhereIn('author_id', $authorIds);
-                }
-            });
-        }
+        $feedFilter->apply($query);
+        $articleFilter->apply($query);
 
-        return ArticleResource::collection(
-            $query->orderByDesc('published_at')->paginate(10)
-        );
+        $articles = $query->orderByDesc('published_at')->paginate($validated);
+
+        return ArticleResource::collection($articles);
     }
 }

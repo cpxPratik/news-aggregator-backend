@@ -11,7 +11,7 @@ class ArticleController extends Controller
 {
     public function index(IndexArticleRequest $request, ArticleFilter $filter)
     {
-        $validated = (int) $request->validated('per_page', 15);
+        $validated = (int) $request->validated('per_page', 10);
 
         $query = $filter->apply(Article::query()->with(['category', 'source', 'author']));
 
