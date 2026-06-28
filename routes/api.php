@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\PreferenceController;
 use App\Models\Author;
 use App\Models\Category;
@@ -24,4 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/preferences', [PreferenceController::class, 'show']);
     Route::put('/preferences', [PreferenceController::class, 'update']);
+
+    Route::get('/feed', FeedController::class);
 });
