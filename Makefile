@@ -32,7 +32,7 @@ cc: upd
 	@$(DOCKER_CMD) exec -u application na-api php artisan optimize:clear
 
 migrate:
-	$(RUN_CMD) php artisan migrate --ansi
+	$(RUN_CMD) php artisan migrate --seed --ansi
 
 migrate-fresh:
 	$(RUN_CMD) php artisan migrate:fresh --seed --ansi
