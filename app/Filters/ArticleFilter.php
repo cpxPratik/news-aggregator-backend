@@ -5,7 +5,7 @@ namespace App\Filters;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-readonly class ArticleFilter
+readonly class ArticleFilter implements Filter
 {
     public function __construct(private Request $request) {}
 
