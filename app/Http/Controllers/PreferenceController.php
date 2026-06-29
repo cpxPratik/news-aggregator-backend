@@ -14,7 +14,7 @@ class PreferenceController extends Controller
     public function show(Request $request)
     {
         return [
-            'data' => $this->formatPreferences($request->user())
+            'data' => $this->formatPreferences($request->user()),
         ];
     }
 
@@ -29,7 +29,7 @@ class PreferenceController extends Controller
         $user->authors()->sync(Author::whereIn('slug', $validated['authors'] ?? [])->pluck('id'));
 
         return [
-            'data' => $this->formatPreferences($user->load(['sources', 'categories', 'authors']))
+            'data' => $this->formatPreferences($user->load(['sources', 'categories', 'authors'])),
         ];
     }
 

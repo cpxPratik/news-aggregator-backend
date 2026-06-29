@@ -26,7 +26,7 @@ class AuthController extends Controller
                 'data' => [
                     'user' => new UserResource($user),
                     'token' => $token,
-                ]
+                ],
             ],
             Response::HTTP_CREATED
         );
@@ -51,7 +51,7 @@ class AuthController extends Controller
                 'data' => [
                     'user' => new UserResource($user),
                     'token' => $token,
-                ]
+                ],
             ]
         );
     }
