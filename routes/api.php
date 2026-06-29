@@ -12,6 +12,15 @@ use App\Models\Category;
 use App\Models\Source;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return [
+        'data' => [
+            'name' => config('app.name').' API',
+            'version' => 'v1',
+        ],
+    ];
+});
+
 Route::middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
