@@ -3,10 +3,11 @@
 namespace App\DataSources;
 
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
 
 class GuardianSource implements NewsSource
 {
+    use ResilientHttpClientTrait;
+
     public function slug(): string
     {
         return 'the-guardian';
@@ -17,7 +18,7 @@ class GuardianSource implements NewsSource
      */
     public function fetch(): iterable
     {
-        $response = Http::acceptJson()->get(
+        $response = $this->http()->get(
             'https://content.guardianapis.com/search',
             [
                 'order-by' => 'newest',
@@ -40,13 +41,13 @@ class GuardianSource implements NewsSource
             $fields = $article['fields'] ?? [];
 
             $articles[] = new ArticleDto(
-                hash('sha256', $article['id']),
-                $article['sectionName'] ?? 'General',
-                $fields['byline'] ?? null,
-                $article['webTitle'],
-                $fields['bodyText'],
-                $article['webUrl'],
-                $article['webPublicationDate'] ?? now()->toDateTimeString(),
+                hashedUrl: hash('sha256', $article['id']),
+                category: $article['sectionName'] ?? 'General',
+                author: $fields['byline'] ?? null,
+                title: $article['webTitle'],
+                content: $fields['bodyText'],
+                url: $article['webUrl'],
+                publishedAt: $article['webPublicationDate'] ?? now()->toDateTimeString(),
             );
         }
 

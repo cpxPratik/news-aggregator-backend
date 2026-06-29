@@ -3,10 +3,12 @@
 namespace App\DataSources;
 
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
 
 class NewsApiSource implements NewsSource
 {
+    use ResilientHttpClientTrait;
+    use UrlNormalizerTrait;
+
     private const array NEWSAPI_CATEGORIES = [
         'business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology',
     ];
@@ -23,7 +25,7 @@ class NewsApiSource implements NewsSource
     {
         $articles = [];
         foreach (self::NEWSAPI_CATEGORIES as $category) {
-            $response = Http::acceptJson()->get(
+            $response = $this->http()->get(
                 'https://newsapi.org/v2/top-headlines',
                 [
                     'category' => $category,
@@ -42,13 +44,13 @@ class NewsApiSource implements NewsSource
                 }
 
                 $articles[] = new ArticleDto(
-                    hash('sha256', $article['url']),
-                    $category,
-                    $article['author'] ?? null,
-                    $article['title'],
-                    $article['content'] ?? $article['description'] ?? $article['title'],
-                    $article['url'],
-                    $article['publishedAt'] ?? now()->toDateTimeString(),
+                    hashedUrl: hash('sha256', $this->normalizeUrl($article['url'])),
+                    category: $category,
+                    author: $article['author'] ?? null,
+                    title: $article['title'],
+                    content: $article['content'] ?? $article['description'] ?? $article['title'],
+                    url: $article['url'],
+                    publishedAt: $article['publishedAt'] ?? now()->toDateTimeString(),
                 );
             }
         }

@@ -3,10 +3,12 @@
 namespace App\DataSources;
 
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
 
 class NewYorkTimesSource implements NewsSource
 {
+    use ResilientHttpClientTrait;
+    use UrlNormalizerTrait;
+
     public function slug(): string
     {
         return 'the-new-york-times';
@@ -17,7 +19,7 @@ class NewYorkTimesSource implements NewsSource
      */
     public function fetch(): iterable
     {
-        $response = Http::acceptJson()->get(
+        $response = $this->http()->get(
             'https://api.nytimes.com/svc/topstories/v2/home.json',
             [
                 'api-key' => config('services.nyt.key'),
@@ -35,13 +37,13 @@ class NewYorkTimesSource implements NewsSource
             }
 
             $articles[] = new ArticleDto(
-                hash('sha256', $article['url']),
-                $article['section'] ?? 'General',
-                $article['byline'] ?? null,
-                $article['title'],
-                $article['abstract'] ?? $article['title'],
-                $article['url'],
-                $article['published_date'] ?? now()->toDateTimeString(),
+                hashedUrl: hash('sha256', $this->normalizeUrl($article['uri'] ?? $article['url'])),
+                category: $article['section'] ?? 'General',
+                author: $article['byline'] ?? null,
+                title: $article['title'],
+                content: $article['abstract'] ?? $article['title'],
+                url: $article['url'],
+                publishedAt: $article['published_date'] ?? now()->toDateTimeString(),
             );
         }
 
