@@ -104,3 +104,15 @@ make cc
 ```bash
 make bash
 ```
+
+### See status of docker containers
+
+```bash
+make ps
+```
+
+### Fix code style
+
+```bash
+make pint
+```
