@@ -3,7 +3,7 @@
 ## Requirements
 
 Either
-- PHP > 8.3
+- PHP >= 8.3
 
 or
 
@@ -19,6 +19,14 @@ cp .env.example .env
 ```
 
 ## With Docker
+
+### Set API keys for news data sources on `.env` file
+
+```bash
+NEWSAPI_KEY=<newsapi-key>
+GUARDIAN_KEY=<theguardian-key>
+NYT_KEY=<newyorktimes-skey>
+```
 
 ### Database settings
 
@@ -56,6 +64,12 @@ make upd
 make down
 ```
 
+### Stop and remove the containers along with MySQL volumes
+
+```bash
+make clear
+```
+
 ### Apply database migrations and seed
 
 ```bash
@@ -69,11 +83,11 @@ make migrate-fresh
 ```
 
 ## Usage
-The API is available at this url: http://localhost:8080/api/v1. Set custom `API_PUBLIC_PORT` on `.env.example` if needed. 
+The API is available at http://localhost:8080/api/v1. Set custom `API_PUBLIC_PORT` on `.env.example` if needed. 
 
 OpenAPI documentation is available at http://localhost:8080/docs/api.
 
-Open API document in JSON format describing full API is available at http://localhost:8080/docs/api.json and also at [api.json](api.json)
+Open API document in JSON format describing full API is available at http://localhost:8080/docs/api.json and also at [api.json](api.json). It can be imported to Postman as collection.
 
 phpMyAdmin can be accessed at http://localhost:8889. Set custom `PMA_PUBLIC_PORT` on `.env.example` if needed.
 
