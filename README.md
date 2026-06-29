@@ -116,3 +116,8 @@ make ps
 ```bash
 make pint
 ```
+
+## TODO
+
+- **Automated Testing:** Implement integration tests for API endpoints.
+- **CI/CD Pipeline:** Set up a GitHub Actions workflow for test suite and code quality.
