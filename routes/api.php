@@ -12,22 +12,26 @@ use App\Models\Category;
 use App\Models\Source;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/articles', [ArticleController::class, 'index']);
-Route::get('/articles/{article}', [ArticleController::class, 'show']);
+Route::middleware('throttle:auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
 
-Route::get('/sources', fn () => SourceResource::collection(Source::orderBy('slug')->get()));
-Route::get('/categories', fn () => CategoryResource::collection(Category::orderBy('slug')->get()));
-Route::get('/authors', fn () => AuthorResource::collection(Author::orderBy('slug')->get()));
+Route::middleware('throttle:api')->group(function () {
+    Route::get('/articles', [ArticleController::class, 'index']);
+    Route::get('/articles/{article}', [ArticleController::class, 'show']);
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/sources', fn () => SourceResource::collection(Source::orderBy('slug')->get()));
+    Route::get('/categories', fn () => CategoryResource::collection(Category::orderBy('slug')->get()));
+    Route::get('/authors', fn () => AuthorResource::collection(Author::orderBy('slug')->get()));
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'profile']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/user', [AuthController::class, 'profile']);
 
-    Route::get('/preferences', [PreferenceController::class, 'show']);
-    Route::put('/preferences', [PreferenceController::class, 'update']);
+        Route::get('/preferences', [PreferenceController::class, 'show']);
+        Route::put('/preferences', [PreferenceController::class, 'update']);
 
-    Route::get('/feed', FeedController::class);
+        Route::get('/feed', FeedController::class);
+    });
 });
