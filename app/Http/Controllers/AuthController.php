@@ -23,8 +23,10 @@ class AuthController extends Controller
 
         return response()->json(
             [
-                'user' => new UserResource($user),
-                'token' => $token
+                'data' => [
+                    'user' => new UserResource($user),
+                    'token' => $token,
+                ]
             ],
             Response::HTTP_CREATED
         );
@@ -46,8 +48,10 @@ class AuthController extends Controller
 
         return response()->json(
             [
-                'user' => new UserResource($user),
-                'token' => $token
+                'data' => [
+                    'user' => new UserResource($user),
+                    'token' => $token,
+                ]
             ]
         );
     }

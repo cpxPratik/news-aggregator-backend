@@ -13,7 +13,9 @@ class PreferenceController extends Controller
 {
     public function show(Request $request)
     {
-        return $this->formatPreferences($request->user());
+        return [
+            'data' => $this->formatPreferences($request->user())
+        ];
     }
 
     public function update(UpdatePreferencesRequest $request)
@@ -22,17 +24,13 @@ class PreferenceController extends Controller
 
         $user = $request->user();
 
-        if (array_key_exists('sources', $validated)) {
-            $user->sources()->sync(Source::whereIn('slug', $validated['sources'])->pluck('id'));
-        }
-        if (array_key_exists('categories', $validated)) {
-            $user->categories()->sync(Category::whereIn('slug', $validated['categories'])->pluck('id'));
-        }
-        if (array_key_exists('authors', $validated)) {
-            $user->authors()->sync(Author::whereIn('slug', $validated['authors'])->pluck('id'));
-        }
+        $user->sources()->sync(Source::whereIn('slug', $validated['sources'] ?? [])->pluck('id'));
+        $user->categories()->sync(Category::whereIn('slug', $validated['categories'] ?? [])->pluck('id'));
+        $user->authors()->sync(Author::whereIn('slug', $validated['authors'] ?? [])->pluck('id'));
 
-        return $this->formatPreferences($user->load(['sources', 'categories', 'authors']));
+        return [
+            'data' => $this->formatPreferences($user->load(['sources', 'categories', 'authors']))
+        ];
     }
 
     private function formatPreferences(User $user): array
