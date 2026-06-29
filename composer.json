@@ -1,11 +1,12 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "cpxpratik/news-aggregator-backend",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "The news aggregator backend with RESTful API.",
     "keywords": [
-        "laravel",
-        "framework"
+        "news aggregator",
+        "REST",
+        "RESTful API"
     ],
     "license": "MIT",
     "require": {

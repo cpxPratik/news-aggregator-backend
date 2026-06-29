@@ -42,4 +42,3 @@ seed:
 
 pint:
 	$(RUN_CMD) vendor/bin/pint
-
