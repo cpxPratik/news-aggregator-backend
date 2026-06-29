@@ -38,9 +38,9 @@ services:
             - na-mysqldata:/var/lib/mysql
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: news_aggregator
-            MYSQL_USER: news_aggregator
-            MYSQL_PASSWORD: news_aggregator
+            MYSQL_DATABASE: "${DB_DATABASE:-news_aggregator}"
+            MYSQL_USER: "${DB_USERNAME:-news_aggregator}"
+            MYSQL_PASSWORD: "${DB_PASSWORD:-news_aggregator}"
         ports:
             - "${MYSQL_PUBLIC_PORT:-3306}:3306"
         networks:
@@ -55,7 +55,7 @@ services:
             PMA_HOST: na-mysql
             UPLOAD_LIMIT: 200M
         ports:
-            - 8889:80
+            - "${PMA_PUBLIC_PORT:-8889}:80"
         depends_on:
             - na-mysql
         networks:
