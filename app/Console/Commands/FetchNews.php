@@ -37,7 +37,7 @@ class FetchNews extends Command
             }
         }
 
-        $this->info("Total {$count} articles fetched from all sources.");
+        $this->info("Total {$total} articles fetched from all sources.");
 
         return $failed ? self::FAILURE : self::SUCCESS;
     }
